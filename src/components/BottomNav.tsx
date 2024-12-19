@@ -4,7 +4,7 @@ import { IoMdHome } from "react-icons/io";
 
 export const BottomNav = () => {
    return (
-      <div className="flex absolute w-full gap-12 justify-center bottom-0 bottom-nav bg-slate-700">
+      <div className="btm-nav bg-slate-700">
          <button className="py-4">
             <IoMdHome size={24} color={`gray`} />
          </button>

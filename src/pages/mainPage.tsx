@@ -62,7 +62,7 @@ export const MainPage = () => {
    }, [start, exeCnt]);
 
    return (
-      <div className="h-svh">
+      <div className="pb-96 justify-center">
          <div className="absolute top-0 w-full text-left">
             <p className="text-white border-b-2 font-light px-4 py-3 text-2xl">
                COUNT UP
