@@ -59,42 +59,30 @@ export const MainPage = () => {
    const [exeCnt, setExeCnt] = useState(1);
 
    const [ment, setMent] = useState("시작");
-   const playBeep = (vol : number, t:number) => {
-      // Web Audio API의 AudioContext 생성
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-
-      // 오실레이터 생성 (사운드 생성기)
       const oscillator = audioContext.createOscillator();
-      oscillator.type = "sine";  // 사인파
-      oscillator.frequency.setValueAtTime(vol, audioContext.currentTime); // 1000Hz (주파수)
+   const playBeep = (vol: number, t: number) => {
+      oscillator.type = "sine"; // 사인파
+      oscillator.frequency.setValueAtTime(vol, audioContext.currentTime); // 주파수 설정
 
-      // Gain 노드 생성 (볼륨 조절)
       const gainNode = audioContext.createGain();
-      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime); // 볼륨 설정 (0 ~ 1)
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime); // 볼륨 설정
 
-
-      // 디스토션 (왜곡 효과) 노드 생성
       const distortion = audioContext.createWaveShaper();
-      distortion.curve = new Float32Array([0, 1, 0]);  // 단순한 왜곡
+      distortion.curve = new Float32Array([0, 1, 0]);  // 왜곡
 
-
-      // 연결: 오실레이터 -> 게인 -> 출력 (스피커)
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      // 소리 재생 시작
-      oscillator.start();
-
-      // 소리 종료 시간 설정 (0.2초 후)
-      oscillator.stop(audioContext.currentTime + t);
+      oscillator.start(); // 소리 시작
+      oscillator.stop(audioContext.currentTime + t); // 지정된 시간 후 소리 종료
    };
+
    const speech = (query: string) => {
       const synth = window.speechSynthesis;
 
-      // 음성 목록 준비 시 실행
       const speakText = () => {
          const voices = synth.getVoices();
-         // console.log(voices);
          const utter = new SpeechSynthesisUtterance(query);
 
          // 한국어 음성 찾기
@@ -104,6 +92,8 @@ export const MainPage = () => {
             console.log("사용 중인 목소리:", koreanVoice.name);
          } else {
             console.warn("한국어 음성을 찾을 수 없습니다. 기본 음성 사용.");
+            // 기본 음성 설정 (한국어가 없으면 기본 음성 사용)
+            utter.voice = voices.find((voice) => voice.lang === "ko-KR") || voices[0]; // 기본 음성으로 설정
          }
 
          // 텍스트 읽기
@@ -115,9 +105,13 @@ export const MainPage = () => {
          speakText();
       } else {
          // 음성 목록이 준비되지 않은 경우 이벤트 대기
-         synth.onvoiceschanged = speakText;
+         synth.onvoiceschanged = () => {
+            // 음성 목록이 준비되면 다시 실행
+            speakText();
+         };
       }
    };
+
 
 
    useEffect(() => {
