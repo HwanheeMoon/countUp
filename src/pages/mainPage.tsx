@@ -178,7 +178,32 @@ export const MainPage = () => {
                +{20}
             </button>
          </div>
-
+         <div className="flex justify-center gap-4 mt-3">
+            <button
+               className="btn btn-active btn-neutral btn-circle text-xl border border-gray-500"
+               onClick={() => setCount(Math.max(count - 5, 0))}
+            >
+               -{5}
+            </button>
+            <button
+               className="btn btn-active btn-neutral btn-circle text-xl border border-gray-500"
+               onClick={() => setCount(Math.max(count - 10, 0))}
+            >
+               -{10}
+            </button>
+            <button
+               className="btn btn-active btn-neutral btn-circle text-xl border border-gray-500"
+               onClick={() => setCount(Math.max(count - 15, 0))}
+            >
+               -{15}
+            </button>
+            <button
+               className="btn btn-active btn-neutral btn-circle text-xl border border-gray-500"
+               onClick={() => setCount(Math.max(count - 20, 0))}
+            >
+               -{20}
+            </button>
+         </div>
          <div className="flex justify-center">
             <button
                className="btn mt-5 text-lg bg-gray-500 border border-gray-500 text-white"

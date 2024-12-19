@@ -1,20 +1,49 @@
 import React, { useEffect, useState } from "react";
+declare global {
+   interface WindowEventMap {
+      beforeinstallprompt: BeforeInstallPromptEvent;
+   }
+}
+
+interface BeforeInstallPromptEvent extends Event {
+   readonly platforms: Array<string>;
+   readonly userChoice: Promise<{
+      outcome: "accepted" | "dismissed";
+      platform: string;
+   }>;
+   prompt(): Promise<void>;
+}
 
 export const DownloadPage = () => {
-   let deferredPrompt;
+   const [deferredPrompt, setDeferredPrompt] =
+      useState<BeforeInstallPromptEvent | null>(null);
 
-   window.addEventListener("beforeinstallprompt", (event) => {
+   const beforeInstallPromptHandler = (event: BeforeInstallPromptEvent) => {
       event.preventDefault();
-      deferredPrompt = event;
-   });
+
+      setDeferredPrompt(event);
+   };
+
+   useEffect(() => {
+      window.addEventListener(
+         "beforeinstallprompt",
+         beforeInstallPromptHandler
+      );
+
+      return () => {
+         window.removeEventListener(
+            "beforeinstallprompt",
+            beforeInstallPromptHandler
+         );
+      };
+   }, []);
 
    const installApp = () => {
-      if (!deferredPrompt) {
-         alert("이미 앱이 설치되어 있거나 앱을 설치할 수 없는 환경입니다");
-         return;
+      if (deferredPrompt) {
+         deferredPrompt?.prompt();
+      } else {
+         alert("이미 프로그램이 깔려 있어요.");
       }
-
-      deferredPrompt.prompt();
    };
 
    return (
