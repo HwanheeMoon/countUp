@@ -5,6 +5,7 @@
   "dependencies": {
     "cra-template-pwa-typescript": "2.0.0",
     "daisyui": "^4.12.22",
+    "howler": "^2.2.4",
     "jotai": "^2.10.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -12,6 +13,7 @@
     "react-router": "^7.0.2",
     "react-scripts": "5.0.1",
     "tailwind": "^4.0.0",
+    "use-sound": "^4.0.3",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
@@ -39,6 +41,7 @@
     ]
   },
   "devDependencies": {
+    "@types/howler": "^2.2.12",
     "@types/react": "^19.0.2",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",

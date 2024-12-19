@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
+import { Howl } from "howler";
 
 const numberToKoreanNative = (num: number): string => {
    if (num < 1 || num > 999) return "지원하지 않는 숫자입니다.";
@@ -58,17 +59,73 @@ export const MainPage = () => {
    const [exeCnt, setExeCnt] = useState(1);
 
    const [ment, setMent] = useState("시작");
+   const playBeep = (vol : number, t:number) => {
+      // Web Audio API의 AudioContext 생성
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 
+      // 오실레이터 생성 (사운드 생성기)
+      const oscillator = audioContext.createOscillator();
+      oscillator.type = "sine";  // 사인파
+      oscillator.frequency.setValueAtTime(vol, audioContext.currentTime); // 1000Hz (주파수)
+
+      // Gain 노드 생성 (볼륨 조절)
+      const gainNode = audioContext.createGain();
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime); // 볼륨 설정 (0 ~ 1)
+
+
+      // 디스토션 (왜곡 효과) 노드 생성
+      const distortion = audioContext.createWaveShaper();
+      distortion.curve = new Float32Array([0, 1, 0]);  // 단순한 왜곡
+
+
+      // 연결: 오실레이터 -> 게인 -> 출력 (스피커)
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // 소리 재생 시작
+      oscillator.start();
+
+      // 소리 종료 시간 설정 (0.2초 후)
+      oscillator.stop(audioContext.currentTime + t);
+   };
    const speech = (query: string) => {
       const synth = window.speechSynthesis;
-      const r = new SpeechSynthesisVoice();
+
+      // 음성 목록 준비 시 실행
+      const speakText = () => {
+         const voices = synth.getVoices();
+         // console.log(voices);
+         const utter = new SpeechSynthesisUtterance(query);
+
+         // 한국어 음성 찾기
+         const koreanVoice = voices.find((voice) => voice.lang === "ko-KR" && voice.name === "Google 한국의");
+         if (koreanVoice) {
+            utter.voice = koreanVoice;
+            console.log("사용 중인 목소리:", koreanVoice.name);
+         } else {
+            console.warn("한국어 음성을 찾을 수 없습니다. 기본 음성 사용.");
+         }
+
+         // 텍스트 읽기
+         synth.speak(utter);
+      };
+
+      if (synth.getVoices().length > 0) {
+         // 음성 목록이 이미 준비된 경우 바로 실행
+         speakText();
+      } else {
+         // 음성 목록이 준비되지 않은 경우 이벤트 대기
+         synth.onvoiceschanged = speakText;
+      }
    };
+
 
    useEffect(() => {
       let timer: NodeJS.Timeout;
 
       const handleExercise = async () => {
          if (startTimer && time > 0) {
+            playBeep(500,0.2);
             // 카운트 다운 소리
             console.log(time);
             timer = setInterval(() => {
@@ -78,6 +135,7 @@ export const MainPage = () => {
 
          if (startTimer && time === 0) {
             // 시작 개시 소리
+            playBeep(1000,0.4);
             console.log("start!!");
             setStartTimer(false); // 타이머가 끝나면 멈춤
             setTimeout(() => {
@@ -103,6 +161,8 @@ export const MainPage = () => {
          }
 
          if (start && time === 0) {
+            playBeep(400,0.1);
+            speech(numberToKoreanNative(exeCnt));
             // 횟수 소리
             console.log(numberToKoreanNative(exeCnt));
             timer = setInterval(() => {
