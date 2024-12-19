@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { Howl } from "howler";
+import useSound from "use-sound";
 
 const numberToKoreanNative = (num: number): string => {
    if (num < 1 || num > 999) return "지원하지 않는 숫자입니다.";
@@ -61,6 +62,7 @@ export const MainPage = () => {
    const [ment, setMent] = useState("시작");
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
+   const [play] = useSound('/sounds/pop-268648.mp3');
    const playBeep = (vol: number, t: number) => {
       oscillator.type = "sine"; // 사인파
       oscillator.frequency.setValueAtTime(vol, audioContext.currentTime); // 주파수 설정
@@ -155,7 +157,7 @@ export const MainPage = () => {
          }
 
          if (start && time === 0) {
-            playBeep(400,0.1);
+            play();
             speech(numberToKoreanNative(exeCnt));
             // 횟수 소리
             console.log(numberToKoreanNative(exeCnt));
