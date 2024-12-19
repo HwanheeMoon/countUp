@@ -179,7 +179,7 @@ export const MainPage = () => {
             </button>
          </div>
 
-         <div className="flex max-w-64 justify-self-center flex-col">
+         <div className="flex justify-center">
             <button
                className="btn mt-5 text-lg bg-gray-500 border border-gray-500 text-white"
                onClick={() => setCount(10)}
