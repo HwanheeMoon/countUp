@@ -1,6 +1,52 @@
 import React, { useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 
+const numberToKoreanNative = (num: number): string => {
+   if (num < 1 || num > 999) return "지원하지 않는 숫자입니다.";
+
+   const units = ["", "백", "십", ""];
+   const nativeNumbers = [
+      "",
+      "하나",
+      "둘",
+      "셋",
+      "넷",
+      "다섯",
+      "여섯",
+      "일곱",
+      "여덟",
+      "아홉",
+   ];
+   const tenPrefixes = [
+      "",
+      "열",
+      "스물",
+      "서른",
+      "마흔",
+      "쉰",
+      "예순",
+      "일흔",
+      "여든",
+      "아흔",
+   ];
+
+   const digits = String(num).padStart(3, "0").split("").map(Number);
+
+   return digits
+      .map((digit, idx) => {
+         if (digit === 0) return ""; // 0은 생략
+
+         // 백 단위
+         if (idx === 0) return nativeNumbers[digit] + units[idx];
+         // 십 단위 (특수 처리)
+         if (idx === 1) return tenPrefixes[digit];
+         // 일 단위
+         return nativeNumbers[digit];
+      })
+      .join("")
+      .replace(/^하나백/, "백"); // '하나백' → '백'
+};
+
 export const MainPage = () => {
    const [time, setTime] = useState(3);
    const [count, setCount] = useState(10);
@@ -12,6 +58,11 @@ export const MainPage = () => {
    const [exeCnt, setExeCnt] = useState(1);
 
    const [ment, setMent] = useState("시작");
+
+   const speech = (query: string) => {
+      const synth = window.speechSynthesis;
+      const r = new SpeechSynthesisVoice();
+   };
 
    useEffect(() => {
       let timer: NodeJS.Timeout;
@@ -53,7 +104,7 @@ export const MainPage = () => {
 
          if (start && time === 0) {
             // 횟수 소리
-            console.log("sound " + exeCnt);
+            console.log(numberToKoreanNative(exeCnt));
             timer = setInterval(() => {
                setExeCnt((prev) => prev + 1);
             }, 60000 / bpm);
@@ -83,7 +134,7 @@ export const MainPage = () => {
                </>
                {!clicked ? (
                   <button
-                     className="w-32 h-32 mb-5 rounded-full bg-slate-600 shadow-md shadow-gray-400 active:bg-slate-700 active:shadow-inner-lg active:shadow-gray-400 border border-gray-500 text-white"
+                     className="w-32 h-32 mb-5 rounded-full bg-slate-600 shadow-xl  active:bg-slate-700 active:shadow-inner active:shadow-black border border-gray-500 text-white"
                      onClick={() => {
                         setTime(3);
                         setStartTimer(true);
@@ -91,7 +142,7 @@ export const MainPage = () => {
                         setExeCnt(1);
                      }}
                   >
-                     시작히기
+                     시작하기
                   </button>
                ) : (
                   start && (
@@ -138,7 +189,7 @@ export const MainPage = () => {
             </div>
             <button
                className="btn btn-active btn-neutral rounded-full border border-gray-500"
-               onClick={() => setBpm(bpm + 1)}
+               onClick={() => setBpm(Math.min(bpm + 1, 60))}
             >
                <FaPlus />
             </button>
