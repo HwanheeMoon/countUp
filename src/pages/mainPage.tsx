@@ -9,7 +9,7 @@ export const MainPage = () => {
    const [start, setStart] = useState(false);
    const [clicked, setClicked] = useState(false);
 
-   const [exeCnt, setExeCnt] = useState(0);
+   const [exeCnt, setExeCnt] = useState(1);
 
    const [ment, setMent] = useState("시작");
 
@@ -19,6 +19,7 @@ export const MainPage = () => {
       const handleExercise = async () => {
          if (startTimer && time > 0) {
             // 카운트 다운 소리
+            console.log(time);
             timer = setInterval(() => {
                setTime((prevTime) => prevTime - 1);
             }, 1000);
@@ -26,6 +27,7 @@ export const MainPage = () => {
 
          if (startTimer && time === 0) {
             // 시작 개시 소리
+            console.log("start!!");
             setStartTimer(false); // 타이머가 끝나면 멈춤
             setTimeout(() => {
                setMent("");
@@ -42,17 +44,19 @@ export const MainPage = () => {
    useEffect(() => {
       let timer: NodeJS.Timeout;
       const doExercise = async () => {
+         if (count + 1 === exeCnt) {
+            setStart(false);
+            setClicked(false);
+            setMent("시작");
+            return;
+         }
+
          if (start && time === 0) {
             // 횟수 소리
             console.log("sound " + exeCnt);
             timer = setInterval(() => {
                setExeCnt((prev) => prev + 1);
             }, 60000 / bpm);
-         }
-
-         if (count + 1 === exeCnt) {
-            setStart(false);
-            setClicked(false);
          }
       };
 
@@ -69,12 +73,12 @@ export const MainPage = () => {
             </p>
          </div>
          <div className="text-white">
-            <div className="mb-5 pt-40 items-center">
+            <div className="mb-5 pt-28 items-center">
                <>
                   {startTimer && time > 0 ? (
                      <p className="text-2xl font-extrabold">{time}</p>
                   ) : (
-                     clicked && <p>{ment}</p>
+                     clicked && <p className="text-2xl font-bold">{ment}</p>
                   )}
                </>
                {!clicked ? (
@@ -84,27 +88,34 @@ export const MainPage = () => {
                         setTime(3);
                         setStartTimer(true);
                         setClicked(true);
-                        setExeCnt(0);
+                        setExeCnt(1);
                      }}
                   >
                      시작히기
                   </button>
                ) : (
                   start && (
-                     <div className="">
-                        <p className="text-4xl font-mono font-extrabold mb-4">
-                           {exeCnt}
-                        </p>
-                        <button
-                           className="btn btn-error text-white"
-                           onClick={() => {
-                              setClicked(false);
-                              setStart(false);
-                              setStartTimer(false);
-                           }}
-                        >
-                           정지
-                        </button>
+                     <div>
+                        <div className="grid gird-col-3 justify-center items-center">
+                           <div className="grid border border-gray-500 py-2 px-3 rounded-lg countdown text-4xl font-mono font-extrabold mb-4">
+                              <p
+                                 style={
+                                    { "--value": exeCnt } as React.CSSProperties
+                                 }
+                              ></p>
+                           </div>
+                           <button
+                              className="grid btn btn-error text-lg text-white"
+                              onClick={() => {
+                                 setClicked(false);
+                                 setStart(false);
+                                 setStartTimer(false);
+                                 setMent("시작");
+                              }}
+                           >
+                              정지
+                           </button>
+                        </div>
                      </div>
                   )
                )}
