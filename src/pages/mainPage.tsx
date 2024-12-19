@@ -110,11 +110,11 @@ export const MainPage = () => {
                )}
             </div>
          </div>
-         <hr className="mb-4 mt-2 w-80 justify-self-center" />
+         <hr className="mb-4 mt-2 justify-center" />
          <div>
             <h1 className="text-white mb-2 text-xl font-bold">속도</h1>
          </div>
-         <div className="flex mb-4 justify-self-center gap-5 items-center">
+         <div className="flex mb-4 justify-center gap-5 items-center">
             <button
                className="btn btn-active btn-neutral rounded-full border border-gray-500"
                onClick={() => setBpm(Math.max(bpm - 1, 0))}
@@ -131,11 +131,11 @@ export const MainPage = () => {
                <FaPlus />
             </button>
          </div>
-         <hr className="mb-4 mt-2 w-80 justify-self-center" />
+         <hr className="mb-4 mt-2 justify-center" />
          <div>
             <h1 className="text-white mb-2 text-xl font-bold">횟수</h1>
          </div>
-         <div className="flex justify-self-center gap-5 items-center">
+         <div className="flex justify-center gap-5 items-center">
             <button
                className="btn btn-active btn-neutral rounded-full border border-gray-500"
                onClick={() => setCount(Math.max(count - 1, 0))}
