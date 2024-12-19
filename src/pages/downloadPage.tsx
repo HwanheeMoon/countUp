@@ -15,16 +15,21 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export const DownloadPage = () => {
+   const [isShown, setIsShown] = useState(false);
+   const [isIOS, setIsIOS] = useState(false);
    const [deferredPrompt, setDeferredPrompt] =
       useState<BeforeInstallPromptEvent | null>(null);
 
-   const beforeInstallPromptHandler = (event: BeforeInstallPromptEvent) => {
-      event.preventDefault();
-
-      setDeferredPrompt(event);
+   const beforeInstallPromptHandler = (e: BeforeInstallPromptEvent) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsShown(true);
    };
 
    useEffect(() => {
+      const isDeviceIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+      setIsIOS(isDeviceIOS);
+
       window.addEventListener(
          "beforeinstallprompt",
          beforeInstallPromptHandler
@@ -38,13 +43,20 @@ export const DownloadPage = () => {
       };
    }, []);
 
-   const installApp = () => {
-      if (deferredPrompt) {
-         deferredPrompt?.prompt();
-      } else {
-         alert("이미 프로그램이 깔려 있어요.");
+   const installApp = async () => {
+      setIsShown(false);
+      if (!deferredPrompt) {
+         return;
       }
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(outcome);
+      setDeferredPrompt(null);
    };
+
+   if (!isIOS && !isShown) {
+      return null;
+   }
 
    return (
       <div className="h-screen items-center py-96">
