@@ -80,43 +80,86 @@ export const MainPage = () => {
       oscillator.stop(audioContext.currentTime + t); // 지정된 시간 후 소리 종료
    };
 
-   const speech = (query: string) => {
-      const synth = window.speechSynthesis;
+   const speech = (text) => {
+      let voices = [];
 
-      // 음성 목록을 미리 로드
-      const getVoices = () => {
-         return new Promise<SpeechSynthesisVoice[]>((resolve) => {
-            const voices = synth.getVoices();
-            if (voices.length !== 0) {
-               resolve(voices);
-            } else {
-               synth.onvoiceschanged = () => resolve(synth.getVoices());
-            }
-         });
+      //디바이스에 내장된 voice를 가져온다.
+      const setVoiceList = () => {
+         voices = window.speechSynthesis.getVoices();
       };
 
-      const speakText = async () => {
-         const voices = await getVoices(); // 음성 목록이 로드될 때까지 기다림
-         const utter = new SpeechSynthesisUtterance(query);
+      setVoiceList();
 
-         // 한국어 음성 찾기
-         const koreanVoice = voices.find((voice) => voice.lang === "ko-KR" && voice.name === "Google 한국의");
-         if (koreanVoice) {
-            utter.voice = koreanVoice;
-            console.log("사용 중인 목소리:", koreanVoice.name);
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+         //voice list에 변경됐을때, voice를 다시 가져온다.
+         window.speechSynthesis.onvoiceschanged = setVoiceList;
+      }
+
+      const speech = (txt) => {
+         const lang = "ko-KR";
+         const utterThis = new SpeechSynthesisUtterance(txt);
+
+         utterThis.lang = lang;
+
+         /* 한국어 vocie 찾기
+            디바이스 별로 한국어는 ko-KR 또는 ko_KR로 voice가 정의되어 있다.
+         */
+         const kor_voice = voices.find(
+             (elem) => elem.lang === lang || elem.lang === lang.replace("-", "_")
+         );
+
+         //힌국어 voice가 있다면 ? utterance에 목소리를 설정한다 : 리턴하여 목소리가 나오지 않도록 한다.
+         if (kor_voice) {
+            utterThis.voice = kor_voice;
          } else {
-            console.warn("한국어 음성을 찾을 수 없습니다. 기본 음성 사용.");
-            // 기본 음성 설정 (한국어가 없으면 기본 음성 사용)
-            utter.voice = voices.find((voice) => voice.lang === "ko-KR") || voices[0];
+            return;
          }
 
-         // 텍스트 읽기
-         synth.speak(utter);
+         //utterance를 재생(speak)한다.
+         window.speechSynthesis.speak(utterThis);
       };
 
-      // 사용자 상호작용을 통해 음성을 시작하도록 해야 함
-      speakText();
+      speech(text);
    };
+
+   // const speech = (query: string) => {
+   //    const synth = window.speechSynthesis;
+   //
+   //    // 음성 목록을 미리 로드
+   //    const getVoices = () => {
+   //       return new Promise<SpeechSynthesisVoice[]>((resolve) => {
+   //          const voices = synth.getVoices();
+   //          if (voices.length !== 0) {
+   //             resolve(voices);
+   //          } else {
+   //             synth.onvoiceschanged = () => resolve(synth.getVoices());
+   //          }
+   //       });
+   //    };
+
+   //    const speakText = async () => {
+   //       const voices = await getVoices(); // 음성 목록이 로드될 때까지 기다림
+   //       const utter = new SpeechSynthesisUtterance(query);
+   //
+   //       // 한국어 음성 찾기
+   //       const koreanVoice = voices.find((voice) => voice.lang === "ko-KR" && voice.name === "Google 한국의");
+   //       if (koreanVoice) {
+   //          utter.voice = koreanVoice;
+   //          console.log("사용 중인 목소리:", koreanVoice.name);
+   //       } else {
+   //          console.warn("한국어 음성을 찾을 수 없습니다. 기본 음성 사용.");
+   //          // 기본 음성 설정 (한국어가 없으면 기본 음성 사용)
+   //          utter.voice = voices.find((voice) => voice.lang === "ko-KR") || voices[0];
+   //       }
+   //
+   //       // 텍스트 읽기
+   //       synth.cancel();
+   //       synth.speak(utter);
+   //    };
+   //
+   //    // 사용자 상호작용을 통해 음성을 시작하도록 해야 함
+   //    speakText();
+   // };
 
 
 
@@ -150,6 +193,10 @@ export const MainPage = () => {
 
       return () => clearInterval(timer);
    }, [startTimer, time]);
+
+   useEffect(() => {
+      window.speechSynthesis.getVoices();
+   }, []);
 
    useEffect(() => {
       let timer: NodeJS.Timeout;
