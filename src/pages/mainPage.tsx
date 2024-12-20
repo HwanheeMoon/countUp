@@ -83,8 +83,20 @@ export const MainPage = () => {
    const speech = (query: string) => {
       const synth = window.speechSynthesis;
 
-      const speakText = () => {
-         const voices = synth.getVoices();
+      // 음성 목록을 미리 로드
+      const getVoices = () => {
+         return new Promise<SpeechSynthesisVoice[]>((resolve) => {
+            const voices = synth.getVoices();
+            if (voices.length !== 0) {
+               resolve(voices);
+            } else {
+               synth.onvoiceschanged = () => resolve(synth.getVoices());
+            }
+         });
+      };
+
+      const speakText = async () => {
+         const voices = await getVoices(); // 음성 목록이 로드될 때까지 기다림
          const utter = new SpeechSynthesisUtterance(query);
 
          // 한국어 음성 찾기
@@ -95,24 +107,17 @@ export const MainPage = () => {
          } else {
             console.warn("한국어 음성을 찾을 수 없습니다. 기본 음성 사용.");
             // 기본 음성 설정 (한국어가 없으면 기본 음성 사용)
-            utter.voice = voices.find((voice) => voice.lang === "ko-KR") || voices[0]; // 기본 음성으로 설정
+            utter.voice = voices.find((voice) => voice.lang === "ko-KR") || voices[0];
          }
 
          // 텍스트 읽기
          synth.speak(utter);
       };
 
-      if (synth.getVoices().length > 0) {
-         // 음성 목록이 이미 준비된 경우 바로 실행
-         speakText();
-      } else {
-         // 음성 목록이 준비되지 않은 경우 이벤트 대기
-         synth.onvoiceschanged = () => {
-            // 음성 목록이 준비되면 다시 실행
-            speakText();
-         };
-      }
+      // 사용자 상호작용을 통해 음성을 시작하도록 해야 함
+      speakText();
    };
+
 
 
 
